@@ -22,8 +22,9 @@ function  PlotSolution(sol,model )
     else
      plot3(xx,yy,zz,'r','LineWidth',2);
     end
+    plot3(XS(2:model.dim+1),YS(2:model.dim+1),ZS(2:model.dim+1),'ro');
     end
-    %plot3(XS(2:model.dim+1),YS(2:model.dim+1),ZS(2:model.dim+1),'ro');
+    
     hold off;
     title('GA')
     grid on;

@@ -18,7 +18,7 @@ NP=30;
 %GA最大迭代次数
 MaxIt=30;
 %每条染色体的维度
-dim =15;
+dim =10;
 %num个个体初始化方式
 num=NP*0.1;
 %交叉概率
@@ -91,8 +91,8 @@ model.alpha_max =alpha_max;
 
 %%定义无人机
 UAV = numel(sx);
-vel =200;
-vrange=[180 200];
+vel =0.2;
+vrange=[0.18 0.22];
 %协同时间分为intervel个时间间隔之和
 intervel=20;
 %无人机安全距离

@@ -1,9 +1,9 @@
-function [ pos ] = Angel2Pos( chromosome,model )
+function [ pos ] = Angel2Pos( chromosome,model,uav )
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 %%计算无人机位置
 
-for uav=1:model.UAV
+
 %计算起始到中点的方向    
      %计算起始到目标的向量
    st = [model.ex-model.sx(uav),model.ey-model.sy(uav),model.ez-model.sz(uav)];
@@ -43,13 +43,10 @@ next_pos =[last_pos(1)+dx,last_pos(2)+dy,last_pos(3)+dz];
 %更新下一个坐标点
 last_pos = next_pos;
 %更新无人机的位置坐标
-pos(i,1,uav) = last_pos(1);
-pos(i,2,uav) = last_pos(2);
-pos(i,3,uav) = last_pos(3);
+pos(i,1) = last_pos(1);
+pos(i,2) = last_pos(2);
+pos(i,3) = last_pos(3);
 end
-end
-
-
 
 
 end

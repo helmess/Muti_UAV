@@ -47,7 +47,7 @@ function [ cost,sol ] = FitnessFunction( chromosome,model )
     dx =diff(xx);
     dy =diff(yy);
     dz = diff(zz);
-    Length = sum(sqrt(dx.^2+dy.^2+dz.^2))*1000;
+    Length = sum(sqrt(dx.^2+dy.^2+dz.^2));
     nobs = numel(xobs);
      violation=0;
     for i=1:nobs
@@ -109,8 +109,8 @@ function [ cost,sol ] = FitnessFunction( chromosome,model )
    [stateProbabilityProcess, expectedCostProcess]=MarkovEvaluate(Allpos,model);
    sol(uav).MarkovState = stateProbabilityProcess;
    sol(uav).MarkovCost = expectedCostProcess;
-   sol(uav).costs=[w1*Length,w3*high+w4*mean(expectedCostProcess)*150,w2*abs(Length/model.vel -chromosome.ETA)*200];
-   single_cost(uav)= w1*Length +w3*high+w4*mean(expectedCostProcess)*150+w2*abs( Length/model.vel -chromosome.ETA)*200;
+   sol(uav).costs=[w1*Length,w3*high,w4*mean(expectedCostProcess)*150,w2*abs(Length/model.vel -chromosome.ETA)*50];
+   single_cost(uav)= w1*Length +w3*high+w4*mean(expectedCostProcess)*150+w2*abs( Length/model.vel -chromosome.ETA)*50;
    end
    cost = mean(single_cost);
 end

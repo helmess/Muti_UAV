@@ -12,7 +12,8 @@ my_chromosome.sol=[];
 my_chromosome.cost=[];
 my_chromosome.ETA=[];
 my_chromosome.IsFeasible=[];
-my_chromosome.AllPos=[];
+my_chromosome.initialized_uav=[];
+my_chromosome.Paths=[];
 %初始染色体个数
 chromosome = repmat(my_chromosome,model.NP,1);
 %子代染色体
@@ -24,24 +25,32 @@ seeds_fitness=zeros(1,model.NP);
 %全局最优
 globel.cost =inf;
 %种群初始化
-tic;
 h= waitbar(0,'initial chromosome');
 for i=1:model.NP
-  flag =0;  
-  while flag ~=1
+  chromosome(i).initialized_uav=zeros(model.UAV,1);
+  while sum(chromosome(i).initialized_uav) ~=model.UAV
+  %需要初始化的无人机序号
+  index = find(chromosome(i).initialized_uav==0);
   %初始化角度和时间
-  [chromosome(i).alpha,chromosome(i).T,chromosome(i).beta] = InitialChromosome(model,i);
+  for j =1:numel(index)
+  uav =index(j);
+  [chromosome(i).alpha(:,uav),chromosome(i).T(:,uav),chromosome(i).beta(:,uav)] = InitialChromosome(model,i,uav);
   %根据角度获得对应坐标
-  [chromosome(i).pos] = Angel2Pos(chromosome(i),model);
+  [chromosome(i).pos(:,:,uav)] = Angel2Pos(chromosome(i),model,uav);
   %形成可执行路径后,由于实际的路径可能比起始到目标的直线距离远,调整运行时间T
-   [chromosome(i).T] =Modify_Chromosom_T(chromosome(i),model);
+   [chromosome(i).T(:,uav),chromosome(i).Paths(uav)] =Modify_Chromosom_T(chromosome(i),model,uav);
    %重新计算新的pos
-  [chromosome(i).pos] = Angel2Pos(chromosome(i),model);
-  %检查坐标合理
-  [flag,chromosome(i).ETA,chromosome(i).atkalpha,chromosome(i).atkbeta] = IsReasonble(chromosome(i),model);
-  
-  chromosome(i).IsFeasible = (flag==1);
+  [chromosome(i).pos(:,:,uav)] = Angel2Pos(chromosome(i),model,uav);
+  %检查各无人机航路是否合理
+  [flag,chromosome(i).atkalpha,chromosome(i).atkbeta] = IsReasonble(chromosome(i),model,uav);
+  chromosome(i).initialized_uav(uav)=flag;
   end
+  %计算协同满足要求
+  max_length = max(chromosome(i).Paths);
+  %以最长距离的航路作为协同时间
+  chromosome(i).ETA = max_length / model.vel;
+  end
+  chromosome(i).IsFeasible =1;
   %计算每个符合协调函数解的适应度值和每个解的具体解决方案
   [chromosome(i).cost,chromosome(i).sol] = FitnessFunction(chromosome(i),model);
   %记录所有解的适应度值，作为轮盘赌的集合
@@ -55,6 +64,9 @@ close(h)
 % end
 %开始迭代进化
 for it=1:model.MaxIt
+    %得到最大和平均适应度值
+    model.f_max =max(seeds_fitness);
+    model.f_avg =mean(seeds_fitness);
     %由于适应度值越小越好
     seeds_fitness = 1./seeds_fitness;
     total_fitness = sum(seeds_fitness);
@@ -74,8 +86,8 @@ for it=1:model.MaxIt
     [ sons] = CrossoverAndMutation( parents,model );
     
     %符合要求以后计算子代的适应度值
-    [sons(1).cost,sons(1).sol,sons(1).AllPos] = FitnessFunction(sons(1),model);
-    [sons(2).cost,sons(2).sol,sons(2).AllPos] = FitnessFunction(sons(2),model);
+    [sons(1).cost,sons(1).sol] = FitnessFunction(sons(1),model);
+    [sons(2).cost,sons(2).sol] = FitnessFunction(sons(2),model);
     next_chromosome(seed) = (sons(1));
     next_chromosome(seed+1) = (sons(2));
     end
@@ -116,16 +128,13 @@ for it=1:model.MaxIt
     end
    
     best(it) = globel.cost;
-    PlotSolution(globel.sol,model);
     pause(0.01);
     disp(['it: ',num2str(it),'   best value:',num2str(globel.cost)]);
     
     
     
 end
-toc;
-figure;
-plot(best);
+PlotSolution(globel.sol,model )
 end
 
 

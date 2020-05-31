@@ -1,12 +1,9 @@
-function [ alpha_r,T_r,beta_r ] = InitialChromosome( model,num)
+function [ alpha,T,beta ] = InitialChromosome( model,num,uav)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
-alpha_r =zeros(model.dim,model.UAV);
-beta_r =zeros(model.dim,model.UAV);
-T_r = zeros(model.dim,model.UAV);
-for uav=1:model.UAV
-    %计算起始到目标的向量
+
+   %计算起始到目标的向量 
    st = [model.ex-model.sx(uav),model.ey-model.sy(uav),model.ez-model.sz(uav)];
    dist = norm(st);
    %计算从起始到目标的平均时间
@@ -51,16 +48,9 @@ else
         alpha(i)=  (rand*2 -1)*model.alpha_max;
         beta(i)=  (rand*2 -1)*model.beta_max;
         T(i)=(rand*(2*deltaT)-deltaT)*0.1+ deltaT;
-
     end
+ 
 end
-alpha_r(:,uav) = alpha;
-beta_r(:,uav) = beta;
-T_r(:,uav) =T;
-end
-
-
-
 
 
 end

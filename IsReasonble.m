@@ -1,36 +1,31 @@
-function [ flag_r ,ETA,AttackAlpha,AttackBeta] = IsReasonble( chromosome,model )
+function [ flag,AttackAlpha,AttackBeta] = IsReasonble( chromosome,model,uav )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 %检查航路是否合理
 %位置坐标越界则该航路不满足要求，重新生成
 sum_alpha =zeros(1,model.UAV);
 sum_beta =zeros(1,model.UAV);
-%记录新的角的值
-new_alpha = zeros(model.dim+1,model.UAV);
-   for uav=1:model.UAV
+flag=0;
    for i=1:model.dim
       if  chromosome.pos(i,1,uav) <model.Xmin || chromosome.pos(i,1,uav)<0 || ...
           chromosome.pos(i,2,uav)<model.Ymin || chromosome.pos(i,2,uav)>model.Ymax||...
           chromosome.pos(i,3,uav)<model.Zmin || chromosome.pos(i,3,uav) > model.Zmax
           AttackAlpha=0;
           AttackBeta =0;
-          flag_r =0;
-          ETA=0;
-          
+          flag =0;
           return
       end
    end
-   end
-   flag=zeros(model.UAV,1);
+
+   
   %检查最后的偏角能否符合要求
-  for uav=1:model.UAV
      %航路最后一个点
    lastpoint=[chromosome.pos(model.dim,1,uav),chromosome.pos(model.dim,2,uav),chromosome.pos(model.dim,3,uav)];
    endpoint =[model.ex,model.ey,model.ez];
    last2end = endpoint -lastpoint;
    
-   %计算最终偏角方向和最后一个点到终点的方向的夹角
-   %分别计算航偏角和俯仰角
+  %计算最终偏角方向和最后一个点到终点的方向的夹角
+   %分别计算航偏角和俯仰角 
    for i=1:model.dim
       sum_alpha(uav) =sum_alpha(uav) + chromosome.alpha(i,uav);
       sum_beta(uav)  = sum_beta(uav) + chromosome.beta(i,uav);
@@ -66,26 +61,19 @@ new_alpha = zeros(model.dim+1,model.UAV);
     AttackBeta(uav) = ag1;
     %根据指定攻击角计算每个航偏角平均增加的角度值
 %     average_value(uav) = (model.attack_alpha(uav) -  AttackAlpha(uav))/(model.dim+1);
-   
-    
+  
     if theta >0 && theta < model.alpha_max &&...
        ag2 >0 && ag2 <model.beta_max
-        flag(uav) = 1;
+        flag=1;
     else
-        flag(uav) = 0;
+        flag= 0;
     end
-  end
-  %若不是所有无人机都满足航偏角及俯仰角在范围内，则淘汰
-  if sum(flag)~=model.UAV
-      flag_r =0;
-      ETA=0;
-      return;
-  end
-   %检查能否达到时间上的协同 
-  [flag_time ,ETA_r] =EstimateTime( chromosome,model ); 
-  %两者都满足说明该解符合要求
-  flag_r = flag_time ;
-  ETA =ETA_r;
-  
+
+%    %检查能否达到时间上的协同 
+%   [flag_time ,ETA_r] =EstimateTime( chromosome,model ); 
+%   %两者都满足说明该解符合要求
+%   flag_r = flag_time ;
+%   ETA =ETA_r;
+%   index =flag;
 end
 

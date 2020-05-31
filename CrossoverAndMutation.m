@@ -45,13 +45,17 @@ function [ sons ] = CrossoverAndMutation( parents,model )
      %判断两个子代的新基因是否合理,若不合理重新选择父母进行杂交
      
     for j=1:2
-    [sons(j).pos] = Angel2Pos(sons(j),model);
-    [flag(j),sons(j).ETA,sons(j).atkalpha,sons(j).atkbeta] = IsReasonble(sons(j),model);
-     sons(j).IsFeasible = (flag(j)==1);
-%     [sons(j).cost,sons(j).sol] = FitnessFunction(sons(j),model);
+    for uav=1:model.UAV
+    [sons(j).pos(:,:,uav)] = Angel2Pos(sons(j),model,uav);
+    [flag(j),sons(j).atkalpha,sons(j).atkbeta] = IsReasonble(sons(j),model,uav);
+    %形成可执行路径后,由于实际的路径可能比起始到目标的直线距离远,调整运行时间T
+   [sons(j).T(:,uav),sons(j).Paths(uav)] =Modify_Chromosom_T(sons(j),model,uav);
+    end
+    sons(j).IsFeasible = (sum(flag)==model.UAV);
+    max_length = max(sons(j).Paths);
+    sons(j).ETA=max_length/model.vel;
     end
     %如果不是所有的子代都符合约束则直接返回父母(为了避免程序卡主),返回0
-    
     for i=1:2
        if sons(i).IsFeasible~=1 
            sons(i) = parents(i);
