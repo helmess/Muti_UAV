@@ -24,7 +24,6 @@ function  PlotSolution(sol,model )
     end
     plot3(XS(2:model.dim+1),YS(2:model.dim+1),ZS(2:model.dim+1),'ro');
     end
-    
     hold off;
     title('GA')
     grid on;

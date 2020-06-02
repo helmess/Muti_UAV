@@ -1,4 +1,4 @@
-function [ cost,sol ] = FitnessFunction( chromosome,model )
+function [ cost,sol,costs ] = FitnessFunction( chromosome,model )
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
     for uav=1:model.UAV
@@ -114,7 +114,7 @@ function [ cost,sol ] = FitnessFunction( chromosome,model )
    sol(uav).cost =single_cost(uav);
     end
   cost =sum(single_cost);
-   
+  costs=single_cost;
    
    
 end

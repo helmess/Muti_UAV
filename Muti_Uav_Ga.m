@@ -10,6 +10,7 @@ my_chromosome.atkbeta=[];
 my_chromosome.T=[];
 my_chromosome.sol=[];
 my_chromosome.cost=[];
+my_chromosome.costs=[];
 my_chromosome.ETA=[];
 my_chromosome.IsFeasible=[];
 my_chromosome.initialized_uav=[];
@@ -22,7 +23,11 @@ next_chromosome = repmat(my_chromosome,model.NP,1);
 AllChromosome = repmat(my_chromosome,model.NP*2,1);
 %种群的适应度值
 seeds_fitness=zeros(1,model.NP);
-%全局最优
+%局部最优
+local =repmat(my_chromosome,model.UAV,1);
+for uav=1:model.UAV
+local(uav).cost =inf;
+end
 globel.cost =inf;
 %种群初始化
 h= waitbar(0,'initial chromosome');
@@ -52,7 +57,7 @@ for i=1:model.NP
   end
   chromosome(i).IsFeasible =1;
   %计算每个符合协调函数解的适应度值和每个解的具体解决方案
-  [chromosome(i).cost,chromosome(i).sol] = FitnessFunction(chromosome(i),model);
+  [chromosome(i).cost,chromosome(i).sol,chromosome(i).costs] = FitnessFunction(chromosome(i),model);
   %记录所有解的适应度值，作为轮盘赌的集合
   seeds_fitness(i) = chromosome(i).cost;
   h=waitbar(i/model.NP,h,[num2str(i),':chromosomes finished']);
@@ -82,6 +87,11 @@ for it=1:model.MaxIt
     [parents,flag] = SelectChromosome(seeds_accumulate_probability,model,chromosome);
     %在父母染色体进行基因重组和变异操作，
     %并获得保证每个子代都符合约束条件
+    end
+    
+    papa=randi(model.UAV,1,1);
+    if local(papa).cost~=inf && it <5
+        parents(2) = local(papa);
     end
     [ sons] = CrossoverAndMutation( parents,model );
     
@@ -122,19 +132,28 @@ for it=1:model.MaxIt
     %选出迭代的染色体和全局最优染色体
     for index =1:model.NP
         seeds_fitness(index) =chromosome(index).cost; 
+        for uav=1:model.UAV
+            if local(uav).cost >chromosome(index).costs(uav)
+                local(uav) = chromosome(index);
+                local(uav).cost =chromosome(index).costs(uav);
+            end
+        end
+        %全局最优
         if globel.cost >chromosome(index).cost
-            globel = chromosome(index);
+            globel =chromosome(index);
         end
     end
-   
+
     best(it) = globel.cost;
-    pause(0.01);
+
      disp(['it: ',num2str(it),'   best value:',num2str(globel.cost)]);
     
     
     
 end
 PlotSolution(globel.sol,model )
+figure;
+plot(best);
 end
 
 
