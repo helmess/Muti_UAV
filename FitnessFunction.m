@@ -91,7 +91,7 @@ function [ cost,sol ] = FitnessFunction( chromosome,model )
      w1 =0.03;
      w2=0.3;
      w3=0.1;
-     w4=0.1;
+     w4=0.2;
      %markov evaluatea
      %获取所有维度的坐标
      r_xx=[];r_yy=[];r_zz=[];
@@ -109,9 +109,13 @@ function [ cost,sol ] = FitnessFunction( chromosome,model )
    [stateProbabilityProcess, expectedCostProcess]=MarkovEvaluate(Allpos,model);
    sol(uav).MarkovState = stateProbabilityProcess;
    sol(uav).MarkovCost = expectedCostProcess;
-   sol(uav).costs=[w1*Length,w3*high,w4*mean(expectedCostProcess)*150,w2*abs(Length/model.vel -chromosome.ETA)*50];
-   single_cost(uav)= w1*Length +w3*high+w4*mean(expectedCostProcess)*150+w2*abs( Length/model.vel -chromosome.ETA)*50;
-   end
-   cost = mean(single_cost);
+   sol(uav).costs=[w1*Length,w3*high,w4*mean(expectedCostProcess)*1000];
+   single_cost(uav)= w1*Length +w3*high+w4*mean(expectedCostProcess)*1000;
+   sol(uav).cost =single_cost(uav);
+    end
+  cost =sum(single_cost);
+   
+   
+   
 end
 

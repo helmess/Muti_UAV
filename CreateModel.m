@@ -1,18 +1,18 @@
 function model = CreateModel()
 %起始点坐标
-sx =[300,300];
-sy =[350,700];
-sz =[285,280];
+sx =[300,300,600];
+sy =[350,700,850];
+sz =[285,280,285];
 %终点坐标
-ex =830;
-ey =515;
-ez =240;
+ex =620;
+ey =620;
+ez =260;
 %航偏角范围
 alpha_min= -30;
 alpha_max = 30;
 %俯仰角范围
-beta_min = -30;
-beta_max = 30;
+beta_min = -10;
+beta_max = 10;
 %GA种群数
 NP=30;
 %GA最大迭代次数
@@ -20,7 +20,7 @@ MaxIt=30;
 %每条染色体的维度
 dim =10;
 %num个个体初始化方式
-num=NP*0.1;
+num=2;
 %交叉概率
 cross_prob =0.9;
 %变异概率

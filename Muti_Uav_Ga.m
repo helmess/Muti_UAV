@@ -42,7 +42,7 @@ for i=1:model.NP
    %重新计算新的pos
   [chromosome(i).pos(:,:,uav)] = Angel2Pos(chromosome(i),model,uav);
   %检查各无人机航路是否合理
-  [flag,chromosome(i).atkalpha,chromosome(i).atkbeta] = IsReasonble(chromosome(i),model,uav);
+  [flag,chromosome(i).atkalpha(uav),chromosome(i).atkbeta(uav)] = IsReasonble(chromosome(i),model,uav);
   chromosome(i).initialized_uav(uav)=flag;
   end
   %计算协同满足要求
@@ -129,7 +129,7 @@ for it=1:model.MaxIt
    
     best(it) = globel.cost;
     pause(0.01);
-    disp(['it: ',num2str(it),'   best value:',num2str(globel.cost)]);
+     disp(['it: ',num2str(it),'   best value:',num2str(globel.cost)]);
     
     
     
